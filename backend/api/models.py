@@ -14,6 +14,7 @@ class Service(models.Model):
     duration = models.PositiveIntegerField()  # Duration in minutes
     price = models.DecimalField(max_digits=6, decimal_places=2)  # Price of the service
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="services")  
+    image = models.ImageField(upload_to='service_images/', blank=True, null=True)  # Fixed image path
 
     def __str__(self):
         return self.name
