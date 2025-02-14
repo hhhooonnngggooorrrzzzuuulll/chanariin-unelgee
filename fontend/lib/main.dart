@@ -10,7 +10,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Флаттер Демо',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
@@ -30,32 +30,33 @@ class _ServiceScreenState extends State<ServiceScreen> {
   @override
   void initState() {
     super.initState();
-    _services = fetchServices(); // Fetch data when the screen is initialized
+    _services = fetchServices(); // Дэлгэц нээгдэхэд мэдээлэл татах
   }
 
-  // Fetch services from Django backend
+  // Django серверээс үйлчилгээ татах функц
   Future<List<dynamic>> fetchServices() async {
     final String baseUrl = 'http://127.0.0.1:8000/';
     final response = await http.get(Uri.parse('${baseUrl}service/'));
 
     if (response.statusCode == 200) {
-      return json.decode(response.body); // Decode the response as JSON
+      return json.decode(
+          utf8.decode(response.bodyBytes)); // UTF-8 кодчилолтой JSON хөрвүүлэх
     } else {
-      throw Exception('Failed to load services');
+      throw Exception('Үйлчилгээг татаж чадсангүй');
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Services')),
+      appBar: AppBar(title: Text('Үйлчилгээ')),
       body: FutureBuilder<List<dynamic>>(
         future: _services,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
+            return Center(child: Text('Алдаа: ${snapshot.error}'));
           } else if (snapshot.hasData) {
             final services = snapshot.data!;
             return ListView.builder(
@@ -63,20 +64,24 @@ class _ServiceScreenState extends State<ServiceScreen> {
               itemBuilder: (context, index) {
                 final service = services[index];
                 final imageUrl = service['image'] != null
-                    ? '${service['image']}' // Fixed URL construction
+                    ? '${service['image']}' // URL-ийг засварласан
                     : null;
 
                 return ListTile(
-                  title: Text(service['name']),
-                  subtitle: Text(service['description'] ?? 'No description'),
+                  title: Text(service['name'],
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  subtitle: Text(service['description'] ?? 'Тайлбар алга'),
                   leading: imageUrl != null
-                      ? Image.network(imageUrl) // Display image from URL
-                      : Icon(Icons.image_not_supported), // Fallback if no image
+                      ? Image.network(imageUrl,
+                          width: 50,
+                          height: 50,
+                          fit: BoxFit.cover) // Зураг харуулах
+                      : Icon(Icons.image_not_supported), // Зураг байхгүй үед
                 );
               },
             );
           } else {
-            return Center(child: Text('No services available'));
+            return Center(child: Text('Ямар ч үйлчилгээ байхгүй'));
           }
         },
       ),
